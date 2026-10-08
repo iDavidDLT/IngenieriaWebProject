@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $projectSource = $PSScriptRoot
 $runtime = Join-Path $env:LOCALAPPDATA 'IngenieriaWeb/inventario-mvc'
 $portablePhp = Join-Path (Split-Path $projectSource -Parent) '.tools/php8425/php.exe'
