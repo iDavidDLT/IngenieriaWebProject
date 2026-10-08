@@ -1,76 +1,100 @@
-# Ingeniería Web — Inventario con CRUD y Login
+# IngenieriaWebProject · Login y CRUD con MVC
 
-Aplicación académica para gestionar un inventario de productos. Implementa el patrón **MVC** con **Laravel 13**, vistas **Blade**, **Bootstrap 5.3.8** y una base de datos **SQLite**. El usuario inicia sesión con nombre de usuario y contraseña; todas las operaciones CRUD requieren autenticación.
+Aplicación académica con **Laravel 13**, **Bootstrap 5.3.8**, **SQLite** y el patrón **MVC**. Permite iniciar sesión con usuario y contraseña para gestionar productos. Cada registro queda vinculado al usuario autenticado y todas las operaciones del CRUD se protegen en el servidor.
 
-## Funcionalidades
+> **Requisito del docente:** el login académico usa **MD5** y la base de datos guarda su hash de 32 caracteres. MD5 es un hash, no cifrado reversible, y no es apropiado para contraseñas de usuarios reales. Esta versión de la actividad debe utilizar datos de prueba. El proyecto incluye una configuración con bcrypt para preparar un uso posterior; cambiar el algoritmo requiere crear nuevas credenciales o restablecer las anteriores, no convertir hashes sin conocer la contraseña.
 
-- Login con usuario y contraseña, mensajes de error y límite de intentos.
-- Logout con invalidación de sesión.
-- Rutas protegidas por el middleware `auth`, incluso al ingresar una URL directamente.
-- Crear, listar, consultar, editar y eliminar productos.
-- Búsqueda por nombre o SKU y paginación.
-- Confirmación antes de eliminar y avisos de operaciones completadas.
-- Validación en el servidor: SKU único, precios válidos y existencias enteras no negativas.
-- Contraseñas almacenadas mediante **bcrypt**, nunca como texto plano.
-- Formularios con token CSRF y salida escapada de Blade.
-- Bootstrap incluido localmente: la interfaz funciona sin CDN ni internet después de instalar.
-- Migraciones, datos de demostración y pruebas automatizadas.
+## Contenido
 
-El inventario es compartido por los usuarios autenticados. Esta actividad no incluye registro público, roles ni recuperación de contraseña.
+- [Funcionalidades y controles](#funcionalidades-y-controles)
+- [Ejecutar en este equipo](#ejecutar-en-este-equipo)
+- [Instalación en otro equipo](#instalación-en-otro-equipo)
+- [Organización MVC](#organización-mvc)
+- [Base de datos](#base-de-datos)
+- [Rutas](#rutas)
+- [Contraseñas MD5](#contraseñas-md5)
+- [Crear otras cuentas](#crear-otras-cuentas)
+- [Pruebas y GitHub](#pruebas-y-github)
+- [Uso posterior con usuarios reales](#uso-posterior-con-usuarios-reales)
+- [Entrega académica](#entrega-académica)
 
-## Inicio rápido en este equipo (Windows)
+## Funcionalidades y controles
 
-Ya se prepararon PHP, Composer y las dependencias. Abre **iniciar.bat** con doble clic desde esta carpeta.
+| Control | Comportamiento |
+| --- | --- |
+| Autenticación | Usuario y contraseña comprobados contra la tabla users. |
+| URLs protegidas | auth bloquea todas las rutas de productos, historial y logout sin sesión. |
+| Permisos por registro | ProductPolicy impide consultar, editar y eliminar productos de otro usuario, aunque se cambie el ID de la URL. |
+| Datos vinculados al login | El servidor asigna user_id desde la sesión; el cliente no puede elegir o cambiar el propietario. |
+| Listado privado | Búsquedas, totales y stock bajo se calculan únicamente sobre los productos del usuario actual. |
+| Validación en servidor | Nombre y SKU obligatorios, límites de longitud, SKU único, precio no negativo con hasta 2 decimales y stock entero no negativo. |
+| Normalización del SKU | Se quitan espacios externos y se convierte a mayúsculas antes de validar. |
+| Formularios CSRF | Crear, actualizar, eliminar, login y logout requieren un token válido. |
+| Intentos de login | Hasta 5 fallos por usuario/IP y 20 fallos por IP en 60 segundos; cambiar el usuario no evita el límite por IP. |
+| Sesión | Regeneración de ID al entrar; invalidación y renovación de token al salir; 30 minutos de inactividad y cookies de sesión. |
+| Cookies | HttpOnly y SameSite=Lax; Secure se utiliza en producción con HTTPS. |
+| Sesiones en base de datos | El contenido de las sesiones se cifra usando APP_KEY. Esto es distinto del hash de contraseñas MD5. |
+| XSS | Blade escapa el texto y CSP limita los scripts al propio sitio. |
+| Clickjacking | X-Frame-Options y frame-ancestors impiden incrustar la página en un iframe. |
+| Consultas | Eloquent pasa los valores como parámetros; no se concatena la entrada del usuario como código SQL. |
+| Campos permitidos | validated() y Fillable limitan los campos que pueden guardarse. |
+| Auditoría | Historial de creación, edición y eliminación con usuario, fecha, producto y SKU. |
+| Consistencia | La operación y su auditoría se guardan en una transacción: ambas se completan o ninguna se guarda. |
+| Repositorio | .env, bases SQLite, dependencias y logs se excluyen de Git. |
 
-También puedes abrir PowerShell en la carpeta del proyecto y ejecutar:
+El historial es de consulta: no tiene rutas para editar o borrar registros de auditoría. Permanece después de eliminar un producto. Registra la operación y el producto; no es un historial completo de valores anteriores y posteriores.
+
+El sistema no incluye registro público, roles, recuperación de contraseña ni doble factor. El nombre de usuario admin no permite saltarse los permisos por propietario.
+
+## Ejecutar en este equipo
+
+PHP 8.4.25, Composer y las dependencias ya están preparados. Abre **iniciar.bat** con doble clic, o ejecuta:
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\iniciar.ps1
 ```
 
-Abre [http://127.0.0.1:8000](http://127.0.0.1:8000).
+Visita [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-| Dato | Valor |
+| Credencial de demostración | Valor |
 | --- | --- |
-| Usuario demo | `admin` |
-| Contraseña demo | `IngenieriaWeb2026!` |
+| Usuario | admin |
+| Contraseña | IngenieriaWeb2026! |
 
-Son credenciales públicas para una actividad local. Antes de desplegar fuera de tu equipo debes cambiarlas y desactivar `APP_DEBUG`.
+Estas credenciales son públicas para la actividad local. **No utilices contraseñas reales ni datos sensibles en la configuración académica MD5.**
 
-### Por qué se ejecuta desde AppData
-
-En este equipo, el acceso controlado a carpetas de Windows impide que PHP escriba en Documentos. El script copia el código a:
+Windows protege la carpeta Documentos frente a la escritura de PHP. El script sincroniza el código a una copia de ejecución en:
 
 ```text
 %LOCALAPPDATA%\IngenieriaWeb\inventario-mvc
 ```
 
-La **base de datos activa** es:
+La base activa se guarda en:
 
 ```text
 %LOCALAPPDATA%\IngenieriaWeb\inventario-mvc\database\database.sqlite
 ```
 
-El script conserva la base de datos, las sesiones y el archivo `.env` de esa copia. No desactiva la protección de Windows. Los cambios de código se hacen en la carpeta de la entrega; se sincronizan al iniciar el script. La base de datos de la carpeta de entrega es una copia inicial; los nuevos datos se guardan en AppData. Para respaldar los datos, copia el archivo SQLite activo con el servidor detenido.
+El script conserva esa base, el archivo .env y las sesiones. No desactiva la protección de Windows. Haz tus cambios de código en la carpeta de la entrega y vuelve a iniciar el script para sincronizarlos. La copia SQLite de la carpeta de entrega es una instantánea inicial; los datos nuevos se guardan en la copia activa.
 
-Detén el servidor con **Ctrl+C**. No ejecutes dos servidores en el mismo puerto.
+Detén el servidor con Ctrl+C. Evita iniciar dos servidores simultáneamente. Para respaldar SQLite, copia el archivo activo con el servidor detenido.
 
 ## Instalación en otro equipo
 
-### Programas necesarios
+Necesitas:
 
-1. **PHP 8.4** para utilizar las versiones fijadas en `composer.lock`. Extensiones: `ctype`, `curl`, `dom`, `fileinfo`, `filter`, `hash`, `mbstring`, `openssl`, `pdo`, `pdo_sqlite`, `session`, `sqlite3`, `tokenizer`, `xml` y `zip`.
-2. **Composer 2** para instalar las dependencias PHP.
-3. **Git** para clonar y subir el repositorio.
-4. Un navegador. Un editor como VS Code es opcional.
+1. **PHP 8.4** para las versiones fijadas en composer.lock.
+2. **Composer 2**.
+3. **Git** para clonar y publicar el código.
+4. Un navegador; VS Code u otro editor es opcional.
 
-Puedes instalar PHP y Composer con [Laravel Herd para Windows](https://herd.laravel.com/windows), o utilizar [PHP para Windows](https://www.php.net/downloads.php?os=windows) y el [instalador oficial de Composer](https://getcomposer.org/download/). Si PHP pide bibliotecas de Visual C++, utiliza el redistribuible x64 de Microsoft indicado por su documentación.
+Extensiones PHP: ctype, curl, dom, fileinfo, filter, hash, mbstring, openssl, pdo, pdo_sqlite, session, sqlite3, tokenizer, xml y zip.
 
-**No necesitas instalar MySQL, XAMPP, Node.js ni npm para esta aplicación.** SQLite se utiliza mediante las extensiones de PHP. Si el docente exige MySQL, consulta la sección siguiente.
+Opciones oficiales: [Laravel Herd para Windows](https://herd.laravel.com/windows), [PHP para Windows](https://www.php.net/downloads.php?os=windows) e [instalador de Composer](https://getcomposer.org/download/).
 
-### Pasos de instalación (PowerShell)
+**Esta aplicación no necesita MySQL, XAMPP, Node.js ni npm.** SQLite es una base de datos real integrada mediante PHP. Bootstrap está incluido en public/vendor/bootstrap y funciona sin CDN.
 
-Descarga/clona el repositorio y abre su carpeta. En un equipo que permita escribir en esa ubicación:
+En una carpeta de desarrollo donde PHP pueda escribir:
 
 ```powershell
 php -v
@@ -83,15 +107,11 @@ php artisan migrate --seed
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-`New-Item` se ejecuta solo cuando el archivo SQLite no existe. No sobrescribas una base de datos existente. Abre [http://127.0.0.1:8000](http://127.0.0.1:8000).
-
-Si Windows bloquea la escritura en Documentos, instala las dependencias en una ubicación de desarrollo permitida o en la carpeta de AppData indicada arriba y utiliza `iniciar.ps1`. La copia de ejecución debe contener `vendor/autoload.php`.
-
-Las dependencias `vendor/`, el archivo `.env`, los logs y las bases de datos no se suben a Git. `composer.lock` sí se incluye para reproducir las mismas versiones.
+Crea el archivo SQLite solo si no existe. No sobrescribas una base con datos. Si Documentos bloquea la escritura, trabaja en una ubicación permitida o prepara la copia de AppData y utiliza iniciar.ps1.
 
 ### Alternativa con MySQL
 
-SQLite satisface la consigna de utilizar base de datos. Para MySQL debes instalar un servidor MySQL y habilitar `pdo_mysql` en PHP. Crea una base vacía llamada `ingenieriaweb` y configura el `.env` activo:
+Si el docente exige MySQL, instala un servidor MySQL, habilita pdo_mysql, crea una base vacía y cambia el .env activo:
 
 ```dotenv
 DB_CONNECTION=mysql
@@ -102,63 +122,92 @@ DB_USERNAME=tu_usuario
 DB_PASSWORD=tu_password
 ```
 
-Luego ejecuta `php artisan config:clear` y `php artisan migrate --seed`. Esto crea las tablas en MySQL; no traslada automáticamente los registros de SQLite.
+Ejecuta php artisan config:clear y php artisan migrate --seed. Las migraciones crean las tablas; no transfieren los registros de SQLite a MySQL.
 
-## Patrón MVC
+## Organización MVC
 
-| Capa | Archivos | Responsabilidad |
-| --- | --- | --- |
-| Modelo | `app/Models/User.php`, `Product.php` | Representan y consultan los registros con Eloquent. |
-| Vista | `resources/views/auth/`, `products/`, `layouts/` | Muestran formularios y datos con Blade y Bootstrap. |
-| Controlador | `app/Http/Controllers/AuthController.php`, `ProductController.php` | Procesan las solicitudes, llaman al modelo y seleccionan una vista o redirección. |
+```text
+app/
+├── Console/Commands/CreateUser.php       # Crear cuentas desde terminal
+├── Http/Controllers/                    # Auth, productos e historial
+├── Http/Middleware/                     # Caché y cabeceras de seguridad
+├── Http/Requests/ProductRequest.php     # Validación y permiso de escritura
+├── Models/                              # User, Product, ProductAudit
+├── Policies/ProductPolicy.php           # Permisos por propietario
+├── Providers/AppServiceProvider.php     # Registro de policy y hash MD5
+└── Support/Md5Hasher.php                 # Hash MD5 requerido por la actividad
+config/                                  # Hashing, sesiones y demostración
+database/
+├── factories/                           # Datos para pruebas
+├── migrations/                          # Estructura reproducible de la BD
+└── seeders/                             # Cuenta y productos demo
+resources/views/                         # Blade, formularios y errores
+public/                                  # CSS, JS y Bootstrap local
+routes/web.php                           # URLs y grupos auth/guest
+tests/Feature/                           # Pruebas funcionales y de controles
+.github/workflows/tests.yml              # Pruebas al publicar en GitHub
+docs/                                    # Seguridad, aprendizaje y video
+```
 
-`routes/web.php` conecta las URLs con los controladores. `ProductRequest` valida los datos antes de guardarlos. `auth` comprueba la sesión antes de permitir el acceso a los controladores del CRUD.
+| Capa | Responsabilidad |
+| --- | --- |
+| Modelo | Representa y consulta registros mediante Eloquent. |
+| Vista | Genera HTML con Blade y Bootstrap. |
+| Controlador | Recibe la solicitud, utiliza los modelos y devuelve vistas o redirecciones. |
 
 ```mermaid
 flowchart LR
-    A[Navegador] --> B[Ruta y middleware auth]
-    B --> C[Controlador]
-    C --> D[Modelo Eloquent]
-    D <--> E[(SQLite)]
-    C --> F[Vista Blade y Bootstrap]
-    F --> A
+    A[Navegador] --> B[Ruta y auth]
+    B --> C[Policy y validación]
+    C --> D[Controlador]
+    D --> E[Modelo Eloquent]
+    E <--> F[(SQLite)]
+    D --> G[Vista Blade y Bootstrap]
+    G --> A
 ```
 
 ## Base de datos
 
-Las migraciones crean:
+- **users:** usuario único, nombre, email y hash de contraseña.
+- **products:** nombre, SKU único global, descripción, precio, stock, propietario user_id y fechas.
+- **product_audits:** usuario, ID histórico del producto, operación, nombre, SKU y fechas.
+- **sessions:** sesiones del login.
+- Tablas auxiliares de caché y trabajos del esqueleto Laravel.
 
-- `users`: nombre, username único, email y hash de contraseña.
-- `products`: nombre, SKU único, descripción, precio, cantidad y fechas.
-- `sessions`: sesiones del login.
-- Tablas auxiliares del esqueleto de Laravel para caché y trabajos.
+La nueva migración añade la relación con users sin borrar productos. Los registros demo previos se asignan a admin cuando esa cuenta existe. Los registros antiguos sin propietario quedan inaccesibles hasta que se asignen expresamente; la aplicación siempre asigna propietario a los nuevos.
 
-`DatabaseSeeder` crea la cuenta demo y cuatro productos. Usa `firstOrCreate`: ejecutarlo otra vez no duplica registros ni restablece los productos existentes.
+El seeder se ejecuta solo con DEMO_MODE=true. No duplica productos ni restablece sus datos. La cuenta demo original con bcrypt se migra a MD5 únicamente si mantiene la contraseña pública conocida. Otras contraseñas no pueden convertirse a MD5 sin conocer su valor original.
 
 ## Rutas
 
-| Método | URL | Acción | Requiere sesión |
+| Método | URL | Acción | Sesión |
 | --- | --- | --- | --- |
-| GET | `/login` | Formulario de login | No |
-| POST | `/login` | Validar credenciales | No |
-| POST | `/logout` | Cerrar sesión | Sí |
-| GET | `/productos` | Listar/buscar | Sí |
-| GET | `/productos/create` | Formulario de creación | Sí |
-| POST | `/productos` | Guardar producto | Sí |
-| GET | `/productos/{id}` | Ver detalle | Sí |
-| GET | `/productos/{id}/edit` | Formulario de edición | Sí |
-| PUT/PATCH | `/productos/{id}` | Actualizar | Sí |
-| DELETE | `/productos/{id}` | Eliminar | Sí |
+| GET | /login | Mostrar formulario | No |
+| POST | /login | Validar credenciales | No |
+| POST | /logout | Cerrar sesión | Sí |
+| GET | /productos | Listar y buscar los productos propios | Sí |
+| GET | /productos/create | Formulario de creación | Sí |
+| POST | /productos | Guardar producto propio | Sí |
+| GET | /productos/{id} | Detalle, con permiso por propietario | Sí |
+| GET | /productos/{id}/edit | Formulario de edición, con permiso | Sí |
+| PUT/PATCH | /productos/{id} | Actualizar, con permiso | Sí |
+| DELETE | /productos/{id} | Eliminar, con permiso | Sí |
+| GET | /actividad | Historial de la cuenta actual | Sí |
 
-Sin sesión, las solicitudes del navegador a estas rutas redirigen a `/login`; una solicitud que espera JSON recibe HTTP 401.
+Sin sesión, el navegador se redirige al login; las solicitudes JSON reciben 401. Un usuario autenticado que intenta acceder a un producto ajeno recibe **403**.
 
-## Contraseñas: bcrypt y el requisito del video
+## Contraseñas MD5
 
-La consigna menciona MD5 como ejemplo. Aquí se utiliza **bcrypt**, un hash pensado para contraseñas y soportado por Laravel. Técnicamente es hashing, no cifrado reversible.
+.env.example contiene HASH_DRIVER=md5 porque el docente lo exige. Laravel utiliza el driver registrado en AppServiceProvider:
 
-El seeder usa `Hash::make(...)`; el login usa `Auth::attempt(...)` para verificar el hash. La contraseña original no se guarda en la tabla `users`.
+- Hash::make calcula MD5 antes de guardar una contraseña.
+- Auth::attempt verifica la contraseña usando ese driver.
+- hash_equals compara los hashes.
+- La columna users.password contiene el hash de 32 caracteres; no el texto original.
+- El modelo no vuelve a hashear un hash ya calculado.
+- La comparación no vuelve seguro a MD5 frente a ataques fuera de línea.
 
-Para mostrar la evidencia en el video, desde la carpeta activa:
+Para la evidencia del video:
 
 ```powershell
 php artisan demo:password
@@ -172,69 +221,83 @@ Set-Location "$env:LOCALAPPDATA\IngenieriaWeb\inventario-mvc"
 & $php artisan demo:password
 ```
 
-El comando muestra el hash de la cuenta académica y el algoritmo `bcrypt`. No muestra la contraseña original. También puedes abrir el archivo SQLite activo con un visor y consultar `users.password`.
+El comando muestra únicamente el hash de la cuenta académica. Se deshabilita cuando DEMO_MODE=false o en producción.
 
-## Pruebas
+## Crear otras cuentas
 
-En una instalación estándar:
+No existe formulario público de registro. Desde la carpeta activa:
+
+```powershell
+php artisan users:create alumno
+```
+
+Solicita nombre, correo y contraseña mediante entrada oculta. Exige una contraseña confirmada, de al menos 12 caracteres, con mayúsculas, minúsculas, números y símbolos, y un máximo de 72 bytes. Valida usuario y correo únicos. En modo académico guarda MD5; con HASH_DRIVER=bcrypt guarda bcrypt.
+
+Cada cuenta nueva empieza con su propio inventario vacío. Una cuenta no puede gestionar registros de otra.
+
+## Pruebas y GitHub
 
 ```powershell
 php artisan test --compact
 ```
 
-En este equipo:
+En este equipo, usa la ruta portable de PHP y la carpeta activa como en el ejemplo del hash. Las pruebas usan SQLite en memoria y no borran los datos de la aplicación.
+
+La validación local pasó **45 pruebas y 195 comprobaciones**, más el flujo HTTP real con CSRF y auditoría. Se comprueban login, logout, rutas protegidas, MD5, bcrypt opcional, acceso entre usuarios, propietario fijado por el servidor, validación, búsqueda privada, auditoría, transacciones, límites de intentos y cabeceras de seguridad.
+
+Laravel desactiva CSRF durante sus pruebas de solicitudes por defecto; la comprobación HTTP real también verifica que un formulario sin token recibe 419.
+
+El workflow tests.yml instalará las dependencias y ejecutará las pruebas con PHP 8.4 en GitHub Actions después de publicar el repositorio. No se ha ejecutado en GitHub todavía.
+
+El repositorio local tiene commits. Para publicarlo en un repositorio vacío de tu cuenta:
 
 ```powershell
-$php = "C:\Users\ASUS\Documents\Ingenieria Web\.tools\php8425\php.exe"
-Set-Location "$env:LOCALAPPDATA\IngenieriaWeb\inventario-mvc"
-& $php artisan test --compact
-```
-
-Las pruebas utilizan SQLite **en memoria**, separada de los datos de la demostración. Cubren rutas protegidas, login correcto/incorrecto, límite de intentos, logout, hash bcrypt, CRUD, validación, búsqueda y texto escapado. Para revisar las rutas: `php artisan route:list --except-vendor`.
-
-Laravel desactiva la comprobación CSRF durante las pruebas de solicitudes por defecto. La aplicación real mantiene el middleware y todos los formularios incluyen `@csrf`.
-
-## Entrega
-
-1. **Repositorio Git**: el código debe incluir este README y `composer.lock`; evita subir `vendor/`, `.env` o la base de datos.
-2. **Video de máximo 3 minutos**: sigue [el guion](docs/VIDEO.md) y publícalo en Loom o YouTube.
-3. Añade aquí el enlace del video y el autor antes de entregar.
-
-**Autor:** por completar con tu nombre.  
-**Materia:** Ingeniería Web.  
-**Enlace del video:** pendiente de grabar y publicar.
-
-El repositorio local está preparado. Para publicarlo, crea un repositorio vacío en tu cuenta de GitHub y ejecuta, reemplazando los marcadores:
-
-```powershell
-git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+git remote add origin https://github.com/iDavidDLT/IngenieriaWebProject.git
 git push -u origin main
 ```
 
-Nunca ejecutes la URL de ejemplo sin reemplazarla. Necesitarás iniciar sesión en GitHub. El video y la publicación remota son pasos de entrega pendientes.
+En una copia que ya tiene origin configurado, utiliza solo git push. No subas .env, bases SQLite, vendor ni logs. Sí se incluyen composer.lock, migraciones, pruebas y documentación.
 
-## Aprender el proyecto
+## Uso posterior con usuarios reales
 
-Consulta [la guía paso a paso](docs/APRENDER.md). El recorrido empieza por una petición al listado y sigue por las rutas, el middleware, el controlador, el modelo, la base de datos y la vista.
+**La configuración académica MD5 no está lista para guardar contraseñas reales.** Para preparar otro entorno:
+
+1. Utiliza HTTPS y un servidor web que exponga únicamente la carpeta public.
+2. Usa .env.production.example como referencia y completa APP_KEY y la conexión de base de datos.
+3. Mantén HASH_DRIVER=bcrypt, DEMO_MODE=false y APP_DEBUG=false.
+4. Crea cuentas privadas con users:create. Las cuentas antiguas MD5 necesitan contraseñas nuevas; cambiar la variable por sí solo no las convierte.
+5. Configura backups, permisos de escritura y la administración de cuentas según el uso previsto.
+
+La aplicación rechaza arrancar con APP_ENV=production si MD5 o la demo están habilitados. En producción también fuerza Secure y HttpOnly para la cookie de sesión. Esto ayuda a evitar una configuración incorrecta; no reemplaza una revisión completa del despliegue.
+
+## Entrega académica
+
+- **Materia:** Ingeniería Web.
+- **Autor en GitHub:** iDavidDLT; completa tu nombre para la entrega académica.
+- **Repositorio GitHub:** [iDavidDLT/IngenieriaWebProject](https://github.com/iDavidDLT/IngenieriaWebProject).
+- **Video Loom/YouTube:** pendiente de grabar y publicar.
+
+Sigue [el guion de máximo 3 minutos](docs/VIDEO.md). Consulta [las protecciones explicadas](docs/SEGURIDAD.md) y [la guía paso a paso](docs/APRENDER.md).
 
 ## Problemas frecuentes
 
-- **php/composer no se reconoce:** instala los programas y abre una terminal nueva; o usa el script portable de este equipo.
-- **could not find driver:** habilita `pdo_sqlite` en el `php.ini` que indica `php --ini`.
-- **database does not exist:** crea el archivo SQLite y ejecuta las migraciones.
-- **no application encryption key:** ejecuta `php artisan key:generate` en la carpeta activa.
-- **SQLSTATE / tablas inexistentes:** ejecuta `php artisan migrate --seed` en la carpeta activa.
-- **Puerto 8000 ocupado:** detén la instancia anterior o usa otro puerto con `--port=8001`.
-- **Errores al escribir logs o vistas en Documentos:** utiliza `iniciar.ps1` y la copia en AppData.
-- **La interfaz no muestra cambios:** detén y vuelve a iniciar el script para sincronizar el código; si persiste, ejecuta `php artisan view:clear` en la copia activa.
-- **Intentos de login bloqueados:** espera el tiempo indicado, como máximo 60 segundos después del último intento fallido.
+- php/composer no se reconoce: instala PHP/Composer y abre una terminal nueva, o usa el iniciador portable.
+- could not find driver: habilita pdo_sqlite en el archivo indicado por php --ini.
+- Tablas inexistentes: ejecuta php artisan migrate --seed en la copia activa.
+- APP_KEY vacía: ejecuta php artisan key:generate.
+- Sesión/token caducado: vuelve al login y envía el formulario de nuevo.
+- 403 en un producto: la cuenta actual no es su propietaria.
+- Demasiados intentos: espera el tiempo indicado, hasta 60 segundos desde el último fallo.
+- Puerto ocupado: detén el servidor previo o utiliza otro puerto.
+- Cambios no visibles: reinicia el iniciador para sincronizar y, si hace falta, ejecuta php artisan view:clear.
 
 ## Referencias
 
-- [Documentación Laravel 13](https://laravel.com/docs/13.x)
-- [Autenticación de Laravel](https://laravel.com/docs/13.x/authentication)
-- [Hashing de Laravel](https://laravel.com/docs/13.x/hashing)
+- [Laravel: autenticación](https://laravel.com/docs/13.x/authentication)
+- [Laravel: autorización y policies](https://laravel.com/docs/13.x/authorization)
+- [Laravel: hashing](https://laravel.com/docs/13.x/hashing)
+- [OWASP: almacenamiento de contraseñas](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [Bootstrap 5.3](https://getbootstrap.com/docs/5.3/)
-- [Referencia para elaborar el README: Alura](https://www.aluracursos.com/blog/como-escribir-un-readme-increible-en-tu-github)
+- [Alura: elaboración del README](https://www.aluracursos.com/blog/como-escribir-un-readme-increible-en-tu-github)
 
-Bootstrap conserva su licencia MIT en `public/vendor/bootstrap/LICENSE`.
+Bootstrap conserva su licencia MIT en public/vendor/bootstrap/LICENSE.

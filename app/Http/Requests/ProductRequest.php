@@ -2,14 +2,27 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Product;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('sku'))) {
+            $this->merge(['sku' => strtoupper(trim($this->input('sku')))]);
+        }
+    }
+
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        $product = $this->route('product');
+
+        return $this->user() !== null && ($product instanceof Product
+            ? Gate::allows('update', $product)
+            : Gate::allows('create', Product::class));
     }
 
     public function rules(): array
@@ -27,6 +40,7 @@ class ProductRequest extends FormRequest
     {
         return [
             'required' => 'El campo :attribute es obligatorio.',
+            'string' => 'El campo :attribute debe ser texto.',
             'max' => 'El campo :attribute supera el límite permitido.',
             'sku.unique' => 'Este código SKU ya está registrado.',
             'sku.alpha_dash' => 'Usa letras sin tildes, números, guiones o guiones bajos en el SKU.',

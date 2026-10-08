@@ -20,7 +20,7 @@ Abre routes/web.php. Route::resource genera las siete rutas del CRUD. El grupo c
 
 Ejecuta php artisan route:list --except-vendor en la copia activa para ver las rutas.
 
-**Ejercicio:** relaciona GET /productos con index y POST /productos con store.
+**Ejercicio:** relaciona GET /productos con index y POST /productos con store. Después abre ProductPolicy: identifica cómo compara users.id con products.user_id para denegar el acceso a registros ajenos.
 
 ## 4. Comprender el login
 
@@ -38,13 +38,13 @@ database/migrations describe las tablas. El seeder crea datos iniciales reproduc
 
 ## 6. Entender las contraseñas
 
-El seeder utiliza Hash::make para generar un hash bcrypt. Auth::attempt compara la contraseña ingresada con el hash almacenado. No se puede “desencriptar” bcrypt para recuperar la contraseña original.
+El seeder utiliza Hash::make con el driver MD5 registrado en AppServiceProvider. Auth::attempt compara el hash de la contraseña ingresada con el almacenado mediante Md5Hasher. MD5 se usa por exigencia del docente; para usuarios reales se requiere un algoritmo apropiado como bcrypt. No es cifrado reversible.
 
 Ejecuta php artisan demo:password y observa el algoritmo.
 
 ## 7. Comprender la validación
 
-ProductRequest contiene las reglas. El navegador ayuda con required y min, pero Laravel valida de nuevo en el servidor. Solo se guardan los campos de validated().
+ProductRequest contiene las reglas. Además, comprueba que tengas permiso para actualizar el producto. El navegador ayuda con required y min, pero Laravel valida de nuevo en el servidor. Solo se guardan los campos de validated().
 
 **Ejercicio:** intenta registrar un SKU existente o un stock negativo y observa el error.
 
@@ -58,9 +58,11 @@ layouts/app.blade.php contiene el marco común. create y edit reutilizan product
 
 @csrf genera un token que comprueba Laravel. @method('PUT') y @method('DELETE') permiten que un formulario HTML represente actualizar o eliminar. Las acciones que modifican datos no se ejecutan mediante GET.
 
-## 10. Ejecutar las pruebas y usar Git
+## 10. Auditoría, pruebas y Git
 
-php artisan test --compact comprueba el comportamiento con una base de datos separada en memoria.
+Abre ProductController.recordAudit y sigue una creación. La transacción guarda el producto y ProductAudit juntos. La pantalla /actividad muestra las operaciones de tu cuenta.
+
+php artisan test --compact comprueba el comportamiento con una base de datos separada en memoria. SecurityControlsTest intenta acceder a productos de otra cuenta para comprobar el bloqueo, no solo la apariencia de la página.
 
 git status muestra cambios. git add y git commit guardan una versión del código. .gitignore excluye archivos privados y archivos que se regeneran.
 

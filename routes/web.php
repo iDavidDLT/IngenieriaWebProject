@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Middleware\PreventBackHistory;
@@ -14,5 +15,6 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware(['auth', PreventBackHistory::class])->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
+    Route::get('/actividad', [AuditController::class, 'index'])->name('activity.index');
     Route::resource('productos', ProductController::class)->parameters(['productos' => 'product']);
 });

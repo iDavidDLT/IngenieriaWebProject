@@ -7,7 +7,7 @@
         <h1 class="fw-bold mt-2 mb-1">Inventario de productos</h1>
         <p class="text-secondary mb-0">Gestiona los productos y las existencias de tu catálogo.</p>
     </div>
-    <a href="{{ route('productos.create') }}" class="btn btn-primary px-4 py-2">+ Nuevo producto</a>
+    <div class="d-flex flex-wrap gap-2"><a href="{{ route('activity.index') }}" class="btn btn-outline-secondary px-4 py-2">Historial</a><a href="{{ route('productos.create') }}" class="btn btn-primary px-4 py-2">+ Nuevo producto</a></div>
 </div>
 <div class="row g-3 mb-4">
     @foreach([['Productos registrados', $totalProducts, 'Catálogo completo'], ['Unidades disponibles', $totalUnits, 'Existencias en inventario'], ['Productos con stock bajo', $lowStock, '5 unidades o menos']] as [$label, $value, $caption])

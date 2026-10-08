@@ -61,7 +61,7 @@ class ApplicationTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_demo_password_is_bcrypt_and_seed_can_run_twice_without_duplicates(): void
+    public function test_demo_password_is_md5_and_seed_can_run_twice_without_duplicates(): void
     {
         $this->seed();
         $this->seed();
@@ -69,7 +69,7 @@ class ApplicationTest extends TestCase
         $hash = $user->getRawOriginal('password');
         $this->assertNotSame('IngenieriaWeb2026!', $hash);
         $this->assertTrue(Hash::check('IngenieriaWeb2026!', $hash));
-        $this->assertSame('bcrypt', password_get_info($hash)['algoName']);
+        $this->assertSame('md5', Hash::info($hash)['algoName']);
         $this->assertArrayNotHasKey('password', $user->toArray());
         $this->assertDatabaseCount('users', 1);
         $this->assertDatabaseCount('products', 4);
@@ -110,7 +110,7 @@ class ApplicationTest extends TestCase
     public function test_invalid_values_and_duplicate_sku_do_not_create_records(): void
     {
         $this->actingAs(User::factory()->create());
-        Product::factory()->create(['sku' => 'DUP-001']);
+        Product::factory()->create(['user_id' => auth()->id(), 'sku' => 'DUP-001']);
         $this->post('/productos', ['name' => '', 'sku' => 'DUP-001', 'price' => '-1', 'stock' => '1.5'])
             ->assertSessionHasErrors(['name', 'sku', 'price', 'stock']);
         $this->assertDatabaseCount('products', 1);
@@ -119,7 +119,7 @@ class ApplicationTest extends TestCase
     public function test_invalid_update_preserves_existing_data(): void
     {
         $this->actingAs(User::factory()->create());
-        $product = Product::factory()->create(['stock' => 10]);
+        $product = Product::factory()->create(['user_id' => auth()->id(), 'stock' => 10]);
         $this->put('/productos/'.$product->id, ['name' => 'Cambio', 'sku' => $product->sku, 'price' => '5.123', 'stock' => -1])
             ->assertSessionHasErrors(['price', 'stock']);
         $this->assertSame(10, $product->fresh()->stock);
@@ -128,8 +128,8 @@ class ApplicationTest extends TestCase
     public function test_search_finds_names_and_sku_and_handles_empty_results(): void
     {
         $this->actingAs(User::factory()->create());
-        Product::factory()->create(['name' => 'Monitor de prueba', 'sku' => 'MON-TEST']);
-        Product::factory()->create(['name' => 'Teclado', 'sku' => 'TEC-TEST']);
+        Product::factory()->create(['user_id' => auth()->id(), 'name' => 'Monitor de prueba', 'sku' => 'MON-TEST']);
+        Product::factory()->create(['user_id' => auth()->id(), 'name' => 'Teclado', 'sku' => 'TEC-TEST']);
         $this->get('/productos?q=Monitor')->assertOk()->assertSee('Monitor de prueba')->assertDontSee('TEC-TEST');
         $this->get('/productos?q=MON-TEST')->assertOk()->assertSee('Monitor de prueba');
         $this->get('/productos?q=inexistente')->assertOk()->assertSee('No encontramos productos');
@@ -138,7 +138,7 @@ class ApplicationTest extends TestCase
     public function test_product_text_is_escaped_to_prevent_script_injection(): void
     {
         $this->actingAs(User::factory()->create());
-        $product = Product::factory()->create(['description' => '<script>alert(1)</script>']);
+        $product = Product::factory()->create(['user_id' => auth()->id(), 'description' => '<script>alert(1)</script>']);
         $this->get('/productos/'.$product->id)->assertOk()
             ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
             ->assertDontSee('<script>alert(1)</script>', false);

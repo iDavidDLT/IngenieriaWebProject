@@ -14,11 +14,14 @@
             <span class="feature-symbol" aria-hidden="true">▦</span>
             <span>Productos, precios y cantidades organizados</span>
         </div>
+        @if(config('security.demo_enabled'))
         <div class="demo-note mt-4">
             <strong>Cuenta para la demostración académica</strong>
             <div class="mt-2">Usuario: <code>admin</code></div>
             <div>Contraseña: <code>IngenieriaWeb2026!</code></div>
+            <p class="small mb-0 mt-2">Cuenta académica: utiliza únicamente datos de prueba.</p>
         </div>
+        @endif
     </section>
     <section class="col-lg-5 offset-lg-1">
         <div class="card border-0 shadow-sm p-3 p-sm-4">
@@ -35,7 +38,7 @@
                     </div>
                     <div class="mb-4">
                         <label for="password" class="form-label">Contraseña</label>
-                        <input id="password" name="password" type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" autocomplete="current-password" required maxlength="255" @error('password') aria-describedby="password-error" @enderror>
+                        <input id="password" name="password" type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" autocomplete="current-password" required maxlength="72" @error('password') aria-describedby="password-error" @enderror>
                         @error('password') <div id="password-error" class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
                     <button class="btn btn-primary btn-lg w-100" type="submit">Entrar al inventario <span aria-hidden="true">→</span></button>
