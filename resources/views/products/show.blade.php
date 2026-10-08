@@ -2,19 +2,14 @@
 @section('title', $product->name)
 @section('content')
 <a href="{{ route('productos.index') }}" class="back-link">← Volver al inventario</a>
-<div class="d-flex flex-wrap gap-3 justify-content-between align-items-center mt-3 mb-4">
-    <div><span class="eyebrow">DETALLE DEL PRODUCTO</span><h1 class="fw-bold mt-2 mb-0">{{ $product->name }}</h1></div>
-    <a class="btn btn-primary" href="{{ route('productos.edit', $product) }}">Editar producto</a>
+<div class="page-heading"><div><span class="eyebrow">FICHA DEL PRODUCTO</span><h1 class="page-title">{{ $product->name }}</h1><p class="page-subtitle">Información, disponibilidad y datos de tu registro.</p></div><div class="heading-actions"><a class="btn btn-primary" href="{{ route('productos.edit', $product) }}">Editar producto</a><button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-delete-url="{{ route('productos.destroy', $product) }}" data-product-name="{{ $product->name }}">Eliminar</button></div></div>
+<div class="detail-layout">
+    <div class="detail-visual"><div><span class="banner-kicker">REFERENCIA DE CATÁLOGO</span><div class="mt-3"><code class="sku">{{ $product->sku }}</code></div></div><img src="{{ asset('images/industrial-wire.svg') }}" alt="" aria-hidden="true" width="520" height="285"><small>Ideal Alambrec · Gestión de inventario</small></div>
+    <section class="panel">
+        <div class="detail-metrics"><div><span class="metric-label">PRECIO / USD</span><span class="metric-value">$ {{ number_format((float) $product->price, 2) }}</span></div><div><span class="metric-label">EXISTENCIAS</span><div class="metric-value">{{ number_format($product->stock) }} <span class="fs-6 fw-normal text-secondary">unidades</span></div><span class="stock-pill mt-2 {{ $product->stock <= 5 ? 'stock-low' : 'stock-good' }}">{{ $product->stock <= 5 ? 'Stock bajo' : 'Disponible' }}</span></div></div>
+        <div class="detail-description"><h2>Descripción del producto</h2><p class="description mb-0">{{ $product->description ?: 'Sin descripción registrada.' }}</p></div>
+        <div class="detail-dates"><span>Creado: {{ $product->created_at->format('d/m/Y H:i') }}</span><span>Última actualización: {{ $product->updated_at->format('d/m/Y H:i') }}</span></div>
+    </section>
 </div>
-<div class="card border-0 shadow-sm form-card"><div class="card-body p-4 p-lg-5">
-    <div class="row g-4">
-        <div class="col-md-4"><div class="text-secondary small mb-2">CÓDIGO SKU</div><code class="sku fs-5">{{ $product->sku }}</code></div>
-        <div class="col-md-4"><div class="text-secondary small mb-2">PRECIO (USD)</div><span class="fs-3 fw-bold">$ {{ number_format((float) $product->price, 2) }}</span></div>
-        <div class="col-md-4"><div class="text-secondary small mb-2">EXISTENCIAS</div><span class="badge {{ $product->stock <= 5 ? 'text-bg-warning' : 'stock-good' }} fs-6">{{ $product->stock }} unidades</span></div>
-        <div class="col-12 border-top pt-4"><h2 class="h6 text-secondary">Descripción</h2><p class="description mb-0">{{ $product->description ?: 'Sin descripción registrada.' }}</p></div>
-    </div>
-    <div class="border-top mt-4 pt-3 small text-secondary">Creado: {{ $product->created_at->format('d/m/Y H:i') }} · Última actualización: {{ $product->updated_at->format('d/m/Y H:i') }}</div>
-    <button type="button" class="btn btn-outline-danger mt-4" data-bs-toggle="modal" data-bs-target="#deleteModal" data-delete-url="{{ route('productos.destroy', $product) }}" data-product-name="{{ $product->name }}">Eliminar producto</button>
-</div></div>
 @include('products.delete-modal')
 @endsection

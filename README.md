@@ -1,6 +1,10 @@
-# IngenieriaWebProject · Login y CRUD con MVC
+# IngenieriaWebProject · Inventario Ideal Alambrec
 
 Aplicación académica con **Laravel 13**, **Bootstrap 5.3.8**, **SQLite** y el patrón **MVC**. Permite iniciar sesión con usuario y contraseña para gestionar productos. Cada registro queda vinculado al usuario autenticado y todas las operaciones del CRUD se protegen en el servidor.
+
+La interfaz toma como referencia visual el [sitio de Ideal Alambrec](https://idealalambrec.somosgrupoag.com/): azul **#29478D**, amarillo **#FBC500**, fondos blancos y una composición industrial. Incluye login con ilustración vectorial local, menú lateral, indicadores de inventario, formularios por secciones, ficha del producto, historial y páginas de error. La identidad gráfica del ejercicio está recreada para este proyecto académico. En móviles, la navegación se coloca arriba y las tablas permiten desplazamiento horizontal.
+
+El login permite mostrar u ocultar la contraseña. Las credenciales de demostración están dentro de un panel desplegable que aparece únicamente cuando DEMO_MODE=true. Los recursos visuales y Bootstrap se sirven localmente, sin depender de fuentes externas o CDN.
 
 > **Requisito del docente:** el login académico usa **MD5** y la base de datos guarda su hash de 32 caracteres. MD5 es un hash, no cifrado reversible, y no es apropiado para contraseñas de usuarios reales. Esta versión de la actividad debe utilizar datos de prueba. El proyecto incluye una configuración con bcrypt para preparar un uso posterior; cambiar el algoritmo requiere crear nuevas credenciales o restablecer las anteriores, no convertir hashes sin conocer la contraseña.
 

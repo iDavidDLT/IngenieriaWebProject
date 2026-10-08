@@ -1,10 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Acceso denegado')
 @section('content')
-<div class="card border-0 shadow-sm p-4 p-lg-5 text-center">
-    <span class="eyebrow">ERROR 403</span>
-    <h1 class="h2 fw-bold mt-3">Acceso denegado</h1>
-    <p class="text-secondary">No tienes permiso para acceder a este registro.</p>
-    <div><a class="btn btn-primary" href="{{ url('/') }}">Volver al inicio</a></div>
-</div>
+<section class="error-state">
+    <span class="eyebrow">PORTAL DE INVENTARIO</span>
+    <div class="error-number" aria-hidden="true">403</div>
+    <h1>Acceso denegado</h1>
+    <p>No tienes permiso para acceder a este registro. Puedes volver a tu inventario y consultar tus productos.</p>
+    <a class="btn btn-primary" href="{{ url('/') }}">Volver al inicio <span aria-hidden="true">→</span></a>
+</section>
 @endsection

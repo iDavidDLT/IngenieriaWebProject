@@ -2,11 +2,15 @@
 @section('title', 'Nuevo producto')
 @section('content')
 <a href="{{ route('productos.index') }}" class="back-link">← Volver al inventario</a>
-<div class="mt-3 mb-4"><span class="eyebrow">CATÁLOGO</span><h1 class="fw-bold mt-2">Nuevo producto</h1><p class="text-secondary">Completa los datos para agregar un producto al inventario.</p></div>
-<div class="card border-0 shadow-sm form-card"><div class="card-body p-4 p-lg-5">
-    <form method="POST" action="{{ route('productos.store') }}">
-        @csrf
-        @include('products.form', ['submitLabel' => 'Guardar producto'])
-    </form>
-</div></div>
+<div class="page-heading"><div><span class="eyebrow">AMPLÍA TU CATÁLOGO</span><h1 class="page-title">Nuevo producto</h1><p class="page-subtitle">Registra la información del producto y sus existencias iniciales.</p></div><span class="section-kicker">NUEVO REGISTRO</span></div>
+<div class="form-layout">
+    <section class="panel">
+        <div class="panel-heading"><div><h2>Información del producto</h2><p>Los campos con asterisco son obligatorios.</p></div></div>
+        <form method="POST" action="{{ route('productos.store') }}">
+            @csrf
+            @include('products.form', ['submitLabel' => 'Guardar producto'])
+        </form>
+    </section>
+    @include('products.form-aside')
+</div>
 @endsection

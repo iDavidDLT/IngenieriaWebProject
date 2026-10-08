@@ -1,50 +1,43 @@
 @extends('layouts.app')
 @section('title', 'Iniciar sesión')
 @section('content')
-<div class="row g-4 g-lg-5 align-items-center login-layout">
-    <section class="col-lg-6">
-        <span class="eyebrow">CONTROL DE INVENTARIO</span>
-        <h1 class="display-5 fw-bold mt-3">Todo tu inventario.<br><span class="text-accent">En un solo lugar.</span></h1>
-        <p class="lead text-secondary mt-3">Consulta tus productos, actualiza existencias y mantén la información al día.</p>
-        <div class="d-flex gap-3 mt-4 align-items-center">
-            <span class="feature-symbol" aria-hidden="true">✓</span>
-            <span>Acceso privado para usuarios autorizados</span>
-        </div>
-        <div class="d-flex gap-3 mt-3 align-items-center">
-            <span class="feature-symbol" aria-hidden="true">▦</span>
-            <span>Productos, precios y cantidades organizados</span>
-        </div>
-        @if(config('security.demo_enabled'))
-        <div class="demo-note mt-4">
-            <strong>Cuenta para la demostración académica</strong>
-            <div class="mt-2">Usuario: <code>admin</code></div>
-            <div>Contraseña: <code>IngenieriaWeb2026!</code></div>
-            <p class="small mb-0 mt-2">Cuenta académica: utiliza únicamente datos de prueba.</p>
-        </div>
-        @endif
+<div class="login-layout">
+    <section class="login-story" aria-labelledby="login-story-title">
+        <span class="eyebrow">CONTROL QUE IMPULSA TU OPERACIÓN</span>
+        <h1 id="login-story-title">La fuerza de<br>un inventario<br><span>bien conectado.</span></h1>
+        <p>Organiza tu catálogo, consulta existencias y mantén cada producto bajo control.</p>
+        <img class="industrial-art" src="{{ asset('images/industrial-wire.svg') }}" alt="" aria-hidden="true" width="520" height="285">
+        <div class="story-sectors" aria-label="Sectores de referencia"><span>CONSTRUCCIÓN</span><span>AGRICULTURA</span><span>INDUSTRIA</span><span>MINERÍA</span></div>
     </section>
-    <section class="col-lg-5 offset-lg-1">
-        <div class="card border-0 shadow-sm p-3 p-sm-4">
-            <div class="card-body">
-                <span class="eyebrow">BIENVENIDO</span>
-                <h2 class="h3 fw-bold mt-2">Iniciar sesión</h2>
-                <p class="text-secondary mb-4">Ingresa tus credenciales para continuar.</p>
-                <form action="{{ route('login.store') }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Usuario</label>
-                        <input id="username" name="username" type="text" class="form-control form-control-lg @error('username') is-invalid @enderror" value="{{ old('username') }}" autocomplete="username" required maxlength="50" autofocus @error('username') aria-describedby="username-error" @enderror>
-                        @error('username') <div id="username-error" class="invalid-feedback">{{ $message }}</div> @enderror
+    <section class="login-entry" aria-labelledby="login-title">
+        <div class="login-entry-inner">
+            <span class="section-kicker">PORTAL DE INVENTARIO</span>
+            <h2 id="login-title">Iniciar sesión</h2>
+            <p class="intro">Bienvenido. Ingresa tus credenciales para acceder a tu espacio de trabajo.</p>
+            <form action="{{ route('login.store') }}" method="POST">
+                @csrf
+                <div class="mb-4">
+                    <label for="username" class="form-label">Usuario</label>
+                    <input id="username" name="username" type="text" class="form-control @error('username') is-invalid @enderror" value="{{ old('username') }}" placeholder="Tu nombre de usuario" autocomplete="username" required maxlength="50" autofocus @error('username') aria-describedby="username-error" aria-invalid="true" @enderror>
+                    @error('username') <div id="username-error" class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div>
+                    <label for="password" class="form-label">Contraseña</label>
+                    <div class="password-wrap">
+                        <input id="password" name="password" type="password" class="form-control @error('password') is-invalid @enderror" placeholder="Ingresa tu contraseña" autocomplete="current-password" required maxlength="72" @error('password') aria-describedby="password-error" aria-invalid="true" @enderror>
+                        <button class="password-toggle" type="button" data-password-toggle aria-controls="password" aria-label="Mostrar contraseña" aria-pressed="false">Mostrar</button>
                     </div>
-                    <div class="mb-4">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <input id="password" name="password" type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" autocomplete="current-password" required maxlength="72" @error('password') aria-describedby="password-error" @enderror>
-                        @error('password') <div id="password-error" class="invalid-feedback">{{ $message }}</div> @enderror
-                    </div>
-                    <button class="btn btn-primary btn-lg w-100" type="submit">Entrar al inventario <span aria-hidden="true">→</span></button>
-                </form>
-                <p class="small text-secondary mt-4 mb-0">Necesitas iniciar sesión para acceder a los productos.</p>
-            </div>
+                    @error('password') <div id="password-error" class="text-danger small mt-1">{{ $message }}</div> @enderror
+                </div>
+                <button class="btn btn-primary login-submit" type="submit"><span>Entrar al inventario</span><span aria-hidden="true">→</span></button>
+                <p class="login-help">Acceso exclusivo para usuarios con una cuenta habilitada.</p>
+            </form>
+            @if(config('security.demo_enabled'))
+            <details class="demo-note">
+                <summary>Credenciales de demostración</summary>
+                <div class="demo-content"><div>Usuario: <code>admin</code></div><div>Contraseña: <code>IngenieriaWeb2026!</code></div><p>Cuenta académica. Utiliza únicamente datos de prueba.</p></div>
+            </details>
+            @endif
         </div>
     </section>
 </div>
