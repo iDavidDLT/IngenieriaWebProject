@@ -247,9 +247,9 @@ La validación local pasó **45 pruebas y 195 comprobaciones**, más el flujo HT
 
 Laravel desactiva CSRF durante sus pruebas de solicitudes por defecto; la comprobación HTTP real también verifica que un formulario sin token recibe 419.
 
-El workflow tests.yml instalará las dependencias y ejecutará las pruebas con PHP 8.4 en GitHub Actions después de publicar el repositorio. No se ha ejecutado en GitHub todavía.
+El workflow tests.yml instala las dependencias y ejecuta las pruebas con PHP 8.4 en GitHub Actions. La primera ejecución publicada [terminó correctamente](https://github.com/iDavidDLT/IngenieriaWebProject/actions/runs/37713575358).
 
-El repositorio local tiene commits. Para publicarlo en un repositorio vacío de tu cuenta:
+El repositorio está publicado en iDavidDLT/IngenieriaWebProject. Para vincular una copia local que aún no tiene origin:
 
 ```powershell
 git remote add origin https://github.com/iDavidDLT/IngenieriaWebProject.git
