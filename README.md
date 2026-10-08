@@ -81,6 +81,10 @@ La base activa se guarda en:
 
 El script conserva esa base, el archivo .env y las sesiones. No desactiva la protección de Windows. Haz tus cambios de código en la carpeta de la entrega y vuelve a iniciar el script para sincronizarlos. La copia SQLite de la carpeta de entrega es una instantánea inicial; los datos nuevos se guardan en la copia activa.
 
+Para ver los cambios en **DB Browser for SQLite**, abre **ver-base-datos.bat**: consulta la conexión de Laravel y abre el archivo físico correcto, incluso cuando Windows redirige AppData. Si DB Browser tenía abierta la copia antigua de Documentos, ciérrala. Después de guardar desde la página, refresca **Examinar datos** o vuelve a ejecutar la consulta SQL. No dejes una transacción de edición pendiente en DB Browser porque puede bloquear las escrituras de la aplicación.
+
+También puedes ejecutar **php artisan db:archivo** desde la copia activa para consultar la ruta y el número de productos almacenados. La consola del iniciador muestra la ruta física que debes abrir para la demostración.
+
 Detén el servidor con Ctrl+C. Evita iniciar dos servidores simultáneamente. Para respaldar SQLite, copia el archivo activo con el servidor detenido.
 
 ## Instalación en otro equipo

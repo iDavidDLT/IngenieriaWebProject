@@ -33,7 +33,10 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar la base de datos.' }
     Write-Host 'Aplicación: http://127.0.0.1:8000'
     Write-Host 'Usuario: admin | Contraseña: IngenieriaWeb2026!'
-    Write-Host ('Base de datos persistente: ' + (Join-Path $runtime 'database/database.sqlite'))
+    $activeDatabasePath = & (Join-Path $projectSource 'ver-base-datos.ps1') -SoloRuta -ActualizarRuta
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudo identificar la base de datos activa.' }
+    Write-Host ('Base de datos persistente: ' + $activeDatabasePath)
+    Write-Host 'Para consultarla en DB Browser, abre ver-base-datos.bat.'
     Write-Host 'Presiona Ctrl+C para detener el servidor.'
     & $php artisan serve --host=127.0.0.1 --port=8000 --no-reload
 } finally { Pop-Location }
