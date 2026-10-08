@@ -1,0 +1,30 @@
+:root { --ink: #132b36; --accent: #087e8b; --paper: #f3f6f8; }
+body { background: var(--paper); color: var(--ink); font-family: "Segoe UI", system-ui, sans-serif; }
+.app-nav { background: var(--ink); }
+.brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #087e8b; font-size: 17px; font-weight: 800; }
+.brand-caption { font-size: 11px; font-weight: 400; color: #b4c8d0; letter-spacing: .04em; }
+.eyebrow { color: #46707c; font-weight: 700; font-size: .73rem; letter-spacing: .13em; }
+.text-accent { color: var(--accent); }
+.btn-primary { --bs-btn-bg: #087e8b; --bs-btn-border-color: #087e8b; --bs-btn-hover-bg: #066673; --bs-btn-hover-border-color: #066673; --bs-btn-active-bg: #05515c; --bs-btn-active-border-color: #05515c; }
+.btn-outline-primary { --bs-btn-color: #087e8b; --bs-btn-border-color: #087e8b; --bs-btn-hover-bg: #087e8b; --bs-btn-hover-border-color: #087e8b; }
+.card { border-radius: 16px; }
+.login-layout { min-height: 65vh; }
+.feature-symbol { display: grid; place-items: center; background: #deeff0; color: #066673; width: 36px; height: 36px; border-radius: 10px; }
+.demo-note { border-left: 3px solid var(--accent); padding: 14px 18px; background: #e5eef1; border-radius: 0 8px 8px 0; max-width: 430px; font-size: .9rem; }
+.demo-note code { color: #174e59; }
+.form-control:focus { border-color: #087e8b; box-shadow: 0 0 0 .2rem rgb(8 126 139 / 15%); }
+.stat-card { border-top: 3px solid #087e8b !important; }
+.inventory-table th { background: #f7f9fb; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: #617981; }
+.inventory-table th, .inventory-table td { padding: 16px 24px; }
+.inventory-table td { background: white; }
+.product-link { color: var(--ink); text-decoration: none; }
+.product-link:hover { color: var(--accent); text-decoration: underline; }
+.sku { color: #47606a; background: #edf2f5; padding: 4px 8px; border-radius: 6px; }
+.stock-good { color: #1b6150; background: #e0f3eb; }
+.form-card { max-width: 960px; }
+.back-link { color: #42616b; text-decoration: none; }
+.back-link:hover { text-decoration: underline; }
+.description { white-space: pre-wrap; overflow-wrap: anywhere; }
+.page-link { color: var(--accent); }
+.active > .page-link { background: var(--accent); border-color: var(--accent); }
+@media (max-width: 575px) { h1 { font-size: 1.9rem; } .inventory-table th, .inventory-table td { padding: 12px; } .navbar-brand { font-size: 1rem; } .login-layout { min-height: auto; } }
