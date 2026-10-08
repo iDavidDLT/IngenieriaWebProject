@@ -32,12 +32,6 @@
                 <button class="btn btn-primary login-submit" type="submit"><span>Entrar al inventario</span><span aria-hidden="true">→</span></button>
                 <p class="login-help">Acceso exclusivo para usuarios con una cuenta habilitada.</p>
             </form>
-            @if(config('security.demo_enabled'))
-            <details class="demo-note">
-                <summary>Credenciales de demostración</summary>
-                <div class="demo-content"><div>Usuario: <code>admin</code></div><div>Contraseña: <code>IngenieriaWeb2026!</code></div><p>Cuenta académica. Utiliza únicamente datos de prueba.</p></div>
-            </details>
-            @endif
         </div>
     </section>
 </div>
