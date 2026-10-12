@@ -1,5 +1,13 @@
 # Desplegar en Render
 
+## Despliegue completado
+
+La aplicación ya está publicada y verificada: https://comisiones-mvc-semana4.onrender.com/comisiones
+
+Panel del servicio: https://dashboard.render.com/web/srv-db6ln4c9v7es7380pn6g
+
+No hace falta crear otro servicio ni introducir claves para usar el despliegue actual. Los pasos siguientes sirven para reproducirlo en otro servicio.
+
 ## Fuente
 
 Repositorio: https://github.com/iDavidDLT/IngenieriaWebProject

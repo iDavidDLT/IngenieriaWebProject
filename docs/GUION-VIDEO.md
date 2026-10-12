@@ -1,6 +1,6 @@
 # Guion para grabar (5–7 minutos)
 
-Sustituye tu nombre y usa la URL pública real de Render. Este guion es una ayuda: explica con tus palabras el código que estás mostrando.
+Sustituye tu nombre y abre https://comisiones-mvc-semana4.onrender.com/comisiones (URL publicada y verificada). Este guion es una ayuda: explica con tus palabras el código que estás mostrando.
 
 ## 0:00–0:35 — Presentación
 
@@ -43,7 +43,7 @@ Abre el código en el editor; muestra cada archivo brevemente y señala las lín
 
 ## 4:20–5:15 — Base de datos y pruebas
 
-Muestra las tres migraciones y los seeders. Ejecuta `php artisan test --compact` (en este equipo usa el PHP de `.tools` si PHP no está en PATH).
+Muestra las tres migraciones y los seeders. Ejecuta `php artisan test --compact`. En este equipo, desde la carpeta del proyecto, usa `& "../../.tools/php8425/php.exe" artisan test --compact` si PHP no está en PATH.
 
 «Las migraciones definen las tablas y la clave foránea de ventas. Los seeders mantienen los datos originales. Las pruebas comprueban los totales, los límites de las tasas, la inclusión de fechas, los períodos vacíos y las validaciones.»
 

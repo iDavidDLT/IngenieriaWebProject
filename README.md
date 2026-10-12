@@ -2,6 +2,12 @@
 
 Implementación del ejercicio `Video-MVC-main.zip` con Laravel 12, PHP 8.2+ y SQLite. Incluye filtro inclusivo por fechas, cálculo por venta, resumen por vendedor, detalle de cada operación y validación en español. No requiere Node, Vite ni servicios externos para mostrar la interfaz.
 
+## Aplicación publicada
+
+https://comisiones-mvc-semana4.onrender.com/comisiones
+
+Desplegada y comprobada en Render (plan Free). [Evidencia de verificación](docs/VERIFICACION.md).
+
 ## Abrir en este equipo
 
 Doble clic en **iniciar.bat**. Después abre http://127.0.0.1:8014/comisiones. El arranque genera configuración si hace falta, ejecuta migraciones y carga los datos de ejemplo solo si las tablas están vacías. No borra datos al iniciar de nuevo.
