@@ -1,0 +1,3 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Ejercicio MVC en Laravel: cálculo de comisiones por vendedor."><title>Comisiones por vendedor · MVC</title><link rel="stylesheet" href="{{ asset('css/comisiones.css') }}"></head>
+<body><header class="topbar"><a class="brand" href="{{ route('comisiones.index') }}"><span class="brand-mark">C</span> Comisiones <span class="brand-sub">/ MVC</span></a><span class="course">Ingeniería Web · Semana 04</span></header><main>@yield('content')</main><footer>Ejercicio de semestres pasados <span>Laravel 12 · Blade · SQLite</span></footer></body></html>
