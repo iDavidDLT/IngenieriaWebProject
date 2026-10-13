@@ -1,18 +1,22 @@
-# Comisiones por vendedor — Semana 4
+# Comisiones MVC
 
-Implementación del ejercicio `Video-MVC-main.zip` con Laravel 12, PHP 8.2+ y SQLite. Incluye filtro inclusivo por fechas, cálculo por venta, resumen por vendedor, detalle de cada operación y validación en español. No requiere Node, Vite ni servicios externos para mostrar la interfaz.
+Aplicación Laravel para calcular comisiones por vendedor a partir de las ventas de un período.
 
-## Aplicación publicada
+**Aplicación:** https://comisiones-mvc-semana4.onrender.com/comisiones
 
-https://comisiones-mvc-semana4.onrender.com/comisiones
+## Funcionalidades
 
-Desplegada y comprobada en Render (plan Free). [Evidencia de verificación](docs/VERIFICACION.md).
+- Filtro por fecha de inicio y fin, incluyendo ambos extremos.
+- Selección de la regla por el monto de cada venta.
+- Resumen por vendedor y totales del período.
+- Detalle de monto, umbral, tasa y comisión aplicada.
+- Validación de fechas y mensajes en español.
 
-## Abrir en este equipo
+## Tecnologías
 
-Doble clic en **iniciar.bat**. Después abre http://127.0.0.1:8014/comisiones. El arranque genera configuración si hace falta, ejecuta migraciones y carga los datos de ejemplo solo si las tablas están vacías. No borra datos al iniciar de nuevo.
+PHP 8.2 o posterior, Laravel 12, Blade y SQLite. El despliegue utiliza Docker y Apache en Render. Los estilos se sirven desde public/css y no requieren un proceso de compilación.
 
-En otro equipo con PHP y Composer:
+## Ejecución local
 
 ```powershell
 composer install
@@ -24,23 +28,22 @@ php artisan demo:preparar
 php artisan serve --port=8014
 ```
 
-## Demostración principal
+Abrir http://127.0.0.1:8014/comisiones. En un equipo con las dependencias ya instaladas también se puede usar iniciar.bat.
 
-Calcula del **2025-06-01** al **2025-06-30**.
+## Arquitectura
 
-| Vendedor | Ventas | Monto | Comisión |
-|---|---:|---:|---:|
-| Jossue Ayala | 2 | $1.500,00 | $124,00 |
-| Melanie Jacome | 2 | $1.700,00 | $1.420,00 |
-| Carlos Pérez | 1 | $300,00 | $0,00 |
-| María Ortiz | 1 | $900,00 | $90,00 |
-| **Total** | **6** | **$4.400,00** | **$1.634,00** |
+| Componente | Ubicación | Responsabilidad |
+|---|---|---|
+| Modelos | app/Models | Datos y relaciones Eloquent |
+| Controlador | app/Http/Controllers/ComisionController.php | Consulta y coordinación de la respuesta |
+| Validación | app/Http/Requests/CalcularComisionesRequest.php | Validar el período solicitado |
+| Servicio | app/Services/CalculadoraComisiones.php | Selección de reglas y cálculo de comisiones |
+| Vista | resources/views/comisiones/index.blade.php | Formulario, resultados y detalle |
+| Rutas | routes/web.php | Acceso al formulario y envío del cálculo |
 
-La interfaz usa punto decimal y coma para miles: `$1,634.00`.
+## Reglas de comisión
 
-## Reglas conservadas del ZIP
-
-| Umbral de una venta | Tasa |
+| Monto mínimo de una venta | Tasa |
 |---:|---:|
 | $0 | 0 % |
 | $500 | 8 % |
@@ -48,21 +51,9 @@ La interfaz usa punto decimal y coma para miles: `$1,634.00`.
 | $800 | 10 % |
 | $1.000 | 115 % |
 
-La tasa `1.15` significa 115 %, aunque podría ser un error de digitación del material. Se conserva deliberadamente: no hay confirmación de que deba cambiarse a 15 %. Las tasas no son necesariamente crecientes. Se selecciona el **mayor umbral menor o igual al monto de cada venta**, no el mayor porcentaje ni el total vendido por el vendedor.
+Se aplica el mayor umbral que no supera el monto de cada venta. Las tasas no son necesariamente crecientes. El valor 1.15 representa 115 %. Los montos de venta son dólares enteros; las comisiones se acumulan en centavos.
 
-Para Jossue: $650 × 6 % = $39; $850 × 10 % = $85; total $124. La venta de María del 28 de mayo ($700) queda fuera del período de junio.
-
-## MVC y responsabilidades
-
-- **Modelos:** `app/Models/Vendedor.php`, `Venta.php`, `Regla.php`. Tablas y relaciones Eloquent.
-- **Vistas:** `resources/views/comisiones/index.blade.php` y `layouts/app.blade.php`. Formulario, tablas y mensajes. Blade escapa los textos y el formulario usa CSRF.
-- **Controlador:** `app/Http/Controllers/ComisionController.php`. Obtiene catálogos, consulta ventas filtradas y devuelve la vista.
-- **Validación:** `app/Http/Requests/CalcularComisionesRequest.php`. Fechas reales y fin igual o posterior al inicio.
-- **Servicio:** `app/Services/CalculadoraComisiones.php`. Regla por venta, cálculo en centavos y agrupación por ID de vendedor. El servicio apoya al controlador; no sustituye los tres componentes MVC.
-- **Rutas:** `GET /` redirige al ejercicio, `GET /comisiones` muestra el formulario y `POST /comisiones` calcula; `GET /up` verifica salud.
-- **Persistencia:** migraciones y seeders en `database/`. Los datos originales se mantienen.
-
-Las reglas se consultan una sola vez por cálculo. Se conserva la precisión exacta del esquema original: montos de venta enteros y porcentajes con dos decimales. Para admitir montos con centavos se tendría que ampliar el esquema y adaptar la conversión.
+Para junio de 2025, los datos incluidos suman seis ventas, $4.400 de monto vendido y $1.634 de comisiones. La venta del 28 de mayo queda fuera del período.
 
 ## Pruebas
 
@@ -70,12 +61,12 @@ Las reglas se consultan una sola vez por cálculo. Se conserva la precisión exa
 php artisan test --compact
 ```
 
-Pruebas relevantes en `tests/Feature/ComisionesTest.php`: totales de junio, exclusión de mayo, extremos inclusivos, mismo día, vacío, fechas inválidas, todos los umbrales, arranque sin duplicar y escape de HTML.
+Se verifican los cálculos por vendedor, umbrales, extremos del período, validación, resultados vacíos y carga de datos sin duplicación.
 
-## Nube y video
+## Despliegue
 
-- [Despliegue en Render](docs/DESPLIEGUE-RENDER.md)
-- [Guion de grabación](docs/GUION-VIDEO.md)
-- [Resultados de referencia](docs/CASOS-DEMO.md)
+Dockerfile instala PHP, Apache y dependencias de producción. docker/start.sh adapta el puerto, ejecuta migraciones, prepara los datos y genera las cachés. render.yaml proporciona una configuración reproducible del servicio.
 
-El despliegue es un servicio web Docker con Apache, no un sitio estático. Los datos de la demo son de solo lectura; SQLite se reconstruye automáticamente con los seeders cuando Render pierde el disco efímero. Eso es adecuado para este ejercicio. Si se añadiera registro de ventas, habría que usar una base persistente.
+La clave APP_KEY se configura como variable de entorno. No se incluye en el repositorio. En producción se utiliza APP_ENV=production y APP_DEBUG=false.
+
+Los datos de esta aplicación son de demostración y solo se consultan. SQLite se reconstruye con los datos iniciales si desaparece el disco efímero de Render. Para guardar nuevas ventas sería necesario utilizar almacenamiento persistente.

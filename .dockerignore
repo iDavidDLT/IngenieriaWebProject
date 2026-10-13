@@ -11,4 +11,6 @@ storage/framework/cache/data/*
 bootstrap/cache/*.php
 database/*.sqlite*
 .phpunit.result.cache
-docs/evidencias
+docs
+NOTAS-ORIGEN.md
+material-personal

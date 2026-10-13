@@ -19,7 +19,7 @@ class VentasTableSeeder extends Seeder
             ['vendedor_id' => 3, 'fecha_venta' => '2025-06-10', 'monto' => 300],
 
             ['vendedor_id' => 4, 'fecha_venta' => '2025-06-12', 'monto' => 900],
-            ['vendedor_id' => 4, 'fecha_venta' => '2025-05-28', 'monto' => 700],  // fuera de rango ejemplo
+            ['vendedor_id' => 4, 'fecha_venta' => '2025-05-28', 'monto' => 700],  
         ]);
     }
 }

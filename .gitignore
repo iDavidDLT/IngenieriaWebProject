@@ -12,4 +12,6 @@
 /bootstrap/cache/*.php
 /public/hot
 /public/build
-/docs/evidencias/
+/docs/
+/NOTAS-ORIGEN.md
+/material-personal/

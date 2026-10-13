@@ -3,14 +3,14 @@ namespace App\Services;
 use Illuminate\Support\Collection;
 class CalculadoraComisiones
 {
-    /** Aplica el mayor umbral permitido por el monto de cada venta. */
+    
     public function calcular(Collection $ventas, Collection $reglas): array
     {
         $ordenadas = $reglas->sortByDesc('umbral_monto');
         $resultados = []; $detalle = []; $totalVentas = 0; $totalComisiones = 0;
         foreach ($ventas as $venta) {
             $regla = $ordenadas->first(fn ($regla) => $regla->umbral_monto <= $venta->monto);
-            // Montos enteros y tasas con dos decimales: resultado exacto en centavos.
+            
             $tasa = (int) round((float) ($regla?->porcentaje ?? 0) * 100);
             $centavos = (int) $venta->monto * $tasa;
             $id = $venta->vendedor_id;
