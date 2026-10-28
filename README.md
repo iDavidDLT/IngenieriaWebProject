@@ -1,5 +1,11 @@
 # IngenieriaWebProject · Inventario Ideal Alambrec
 
+## Entrega Progreso 1 · Directorio360
+
+La pantalla responsive de esta entrega está en **[progreso-1](progreso-1/README.md)**. Incluye HTML semántico, Flexbox, CSS Grid, BEM, Sass por componentes y un panel interactivo con datos de demostración. Su README explica cómo abrirla, compilar los estilos y localizar cada requisito de evaluación.
+
+---
+
 Aplicación académica con **Laravel 13**, **Bootstrap 5.3.8**, **SQLite** y el patrón **MVC**. Permite iniciar sesión con usuario y contraseña para gestionar productos. Cada registro queda vinculado al usuario autenticado y todas las operaciones del CRUD se protegen en el servidor.
 
 La interfaz toma como referencia visual el [sitio de Ideal Alambrec](https://idealalambrec.somosgrupoag.com/): azul **#29478D**, amarillo **#FBC500**, fondos blancos y una composición industrial. Incluye login con ilustración vectorial local, menú lateral, indicadores de inventario, formularios por secciones, ficha del producto, historial y páginas de error. La identidad gráfica del ejercicio está recreada para este proyecto académico. En móviles, la navegación se coloca arriba y las tablas permiten desplazamiento horizontal.
